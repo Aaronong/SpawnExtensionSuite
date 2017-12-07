@@ -7,6 +7,10 @@
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aaronong/SpawnExtensionSuite.git"
+  },
   "keywords": ["data", "generator", "extension", "type", "mock"],
   "author": "Aaron Ong",
   "license": "ISC",
