@@ -1,0 +1,16 @@
+{
+  "name": "spawn-ex",
+  "version": "1.0.0",
+  "description":
+    "The spawn-ex NPM module provides tools for writing spawn extensions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "keywords": ["data", "generator", "extension", "type", "mock"],
+  "author": "Aaron Ong",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^4.0.1"
+  }
+}
