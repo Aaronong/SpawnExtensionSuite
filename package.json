@@ -1,6 +1,6 @@
 {
   "name": "spawn-extension",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description":
     "The spawn-ex NPM module provides tools for writing spawn extensions.",
   "main": "index.js",

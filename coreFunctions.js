@@ -69,62 +69,82 @@ function generateTestInputList(descriptor) {
  *   - they are deterministic
  * @param {the FVG being registered} fvg
  */
-function registerFVG(fvg) {
-  record.addFVG(fvg.descriptor.name);
-  let testList = generateTestInputList(fvg.descriptor);
-  let totalTestNum = testList.length;
-  let outputType = fvg.descriptor.output.type;
-  for (let currTestNum = 0; currTestNum < totalTestNum; currTestNum++) {
-    let currTest = testList[currTestNum];
-    let output = fvg.run(currTest, fvg.descriptor);
-    if (!outputType.prototype.isInputValid(output)) {
-      throw new Error(
-        "Failed test " +
-          currTestNum +
-          " of " +
-          totalTestNum +
-          ". The following input " +
-          JSON.stringify(fvg.cleanInput(currTest, fvg.descriptor)) +
-          "returned an output of " +
-          output +
-          " which is not of type " +
-          outputType.prototype.key
+function coreContext(EXTENSION, VERSION) {
+  return {
+    registerFVG: function registerFVG(fvg) {
+      const newRecord = {
+        fvg: fvg.descriptor.name,
+        extension: EXTENSION,
+        version: VERSION
+      };
+      record.addFVG(newRecord);
+      let testList = generateTestInputList(fvg.descriptor);
+      let totalTestNum = testList.length;
+      let outputType = fvg.descriptor.output.type;
+      for (let currTestNum = 0; currTestNum < totalTestNum; currTestNum++) {
+        let currTest = testList[currTestNum];
+        let output = fvg.run(currTest, fvg.descriptor);
+        if (!outputType.prototype.isInputValid(output)) {
+          throw new Error(
+            "Failed test " +
+              currTestNum +
+              " of " +
+              totalTestNum +
+              ". The following input " +
+              JSON.stringify(fvg.cleanInput(currTest, fvg.descriptor)) +
+              "returned an output of " +
+              output +
+              " which is not of type " +
+              outputType.prototype.key
+          );
+        }
+        let output2 = fvg.run(currTest, fvg.descriptor);
+        if (output !== output2) {
+          throw new Error(
+            "Failed test " +
+              currTestNum +
+              " of " +
+              totalTestNum +
+              ". FVGs must be deterministic. The following input " +
+              JSON.stringify(fvg.cleanInput(currTest, fvg.descriptor)) +
+              "returned an output of " +
+              output +
+              " on the first run and returned " +
+              output2 +
+              " on the second."
+          );
+        }
+      }
+      console.log(
+        totalTestNum +
+          " tests passed. '" +
+          fvg.descriptor.name +
+          "' is registered."
       );
     }
-    let output2 = fvg.run(currTest, fvg.descriptor);
-    if (output !== output2) {
-      throw new Error(
-        "Failed test " +
-          currTestNum +
-          " of " +
-          totalTestNum +
-          ". FVGs must be deterministic. The following input " +
-          JSON.stringify(fvg.cleanInput(currTest, fvg.descriptor)) +
-          "returned an output of " +
-          output +
-          " on the first run and returned " +
-          output2 +
-          " on the second."
-      );
-    }
-  }
-  console.log(
-    totalTestNum + " tests passed. '" + fvg.descriptor.name + "' is registered."
-  );
+  };
 }
 
 class ExtensionRecords {
   constructor() {
+    // {extension:"", version:"", fvg:""}
     this.FVGs = [];
   }
-  addFVG(name) {
-    if (this.FVGs.find(element => element === name)) {
+  addFVG(fvg) {
+    if (
+      this.FVGs.find(
+        element =>
+          element.extension === fvg.extension &&
+          element.version === fvg.version &&
+          element.fvg === fvg.fvg
+      )
+    ) {
       throw new Error("You may not register two FVGs of the same name.");
     }
-    this.FVGs.push(name);
+    this.FVGs.push(fvg);
   }
 }
 
 let record = new ExtensionRecords();
 
-module.exports = { registerFVG };
+module.exports = coreContext;
